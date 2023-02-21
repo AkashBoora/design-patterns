@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Cache<K,V> {
-    private static Cache cacheObject;
+    // private static Cache<K,V> cacheObject;
 
-    private Map<K, CacheItem> map;
-    private CacheItem first, last;
+    private Map<K, CacheItem<K,V>> map;
+    private CacheItem<K,V> first, last;
     private int size;
     private final int CAPACITY;
     private int hitCount = 0;
@@ -17,19 +17,27 @@ public class Cache<K,V> {
         map = new HashMap<>(CAPACITY);
     }
 
-    public static Cache getInstance(){
-        if(cacheObject == null){
-            synchronized (Cache.class){
-                if( cacheObject == null) {
-                    cacheObject = new Cache();
-                }
-            }
-        }
-        return cacheObject;
+    public static <K,V> Cache<K,V> getInstance() {
+        return SingletonHolder.INSTANCE;
     }
 
+    private static class SingletonHolder<K,V> {
+        public static final Cache<K,V> INSTANCE = new Cache<K,V>();
+    }
+
+    // public static Cache<K,V> getInstance(){
+    //     if(cacheObject == null){
+    //         synchronized (Cache.class){
+    //             if( cacheObject == null) {
+    //                 cacheObject = new Cache<K,V>();
+    //             }
+    //         }
+    //     }
+    //     return cacheObject;
+    // }
+
     public void put(K key, V value) {
-        CacheItem node = new CacheItem(key, value);
+        CacheItem<K,V> node = new CacheItem<K,V>(key, value);
         if(map.containsKey(key) == false) {
             if(getSize() >= CAPACITY) {
                 deleteNode(first);
@@ -39,7 +47,7 @@ public class Cache<K,V> {
         map.put(key, node);
     }
 
-    private void addNodeToLast(CacheItem node) {
+    private void addNodeToLast(CacheItem<K,V> node) {
         if(last != null) {
             last.setNext(node);
             node.setPrev(last);
@@ -51,7 +59,7 @@ public class Cache<K,V> {
         size++;
     }
 
-    private void deleteNode(CacheItem node) {
+    private void deleteNode(CacheItem<K,V> node) {
         if(node == null){
             return;
         }
@@ -70,17 +78,17 @@ public class Cache<K,V> {
         if(!map.containsKey(key)){
             return null;
         }
-        CacheItem node = map.get(key);
+        CacheItem<K,V> node = map.get(key);
         node.incrementHitCount();
         reorder(node);
         return (V) node.getValue();
     }
 
-    private void reorder(CacheItem node) {
+    private void reorder(CacheItem<K,V> node) {
         if(last == node) {
             return;
         }
-        CacheItem nextNode = node.getNext();
+        CacheItem<K,V> nextNode = node.getNext();
         while (nextNode != null) {
             if(nextNode.getHitCount() > node.getHitCount()) {
                 break;

@@ -4,7 +4,7 @@ public class CacheItem<K,V> {
     private K key;
     private V value;
     private int hitCount = 0;
-    private CacheItem prev,next;
+    private CacheItem<K,V> prev,next;
 
     public CacheItem(K key, V value) {
         this.key = key;
@@ -39,19 +39,19 @@ public class CacheItem<K,V> {
         this.hitCount = hitCount;
     }
 
-    public CacheItem getPrev() {
+    public CacheItem<K,V> getPrev() {
         return prev;
     }
 
-    public void setPrev(CacheItem prev) {
+    public void setPrev(CacheItem<K,V> prev) {
         this.prev = prev;
     }
 
-    public CacheItem getNext() {
+    public CacheItem<K,V> getNext() {
         return next;
     }
 
-    public void setNext(CacheItem next) {
+    public void setNext(CacheItem<K,V> next) {
         this.next = next;
     }
 }
