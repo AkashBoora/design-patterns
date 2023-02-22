@@ -6,23 +6,26 @@ import java.util.Map;
 public class Cache<K,V> {
     // private static Cache<K,V> cacheObject;
 
+    private static final Map<Class<?>, Cache<?, ?>> instances = new HashMap<>();
+    
     private Map<K, CacheItem<K,V>> map;
     private CacheItem<K,V> first, last;
     private int size;
-    private final int CAPACITY;
     private int hitCount = 0;
     private int missCount = 0;
-    public Cache() {
-        CAPACITY = 10;  //
+    private final int CAPACITY;
+
+    private Cache(Class<?> clazz) {
+        CAPACITY = 10;
         map = new HashMap<>(CAPACITY);
+        instances.put(clazz, this);
     }
 
-    public static <K,V> Cache<K,V> getInstance() {
-        return SingletonHolder.INSTANCE;
-    }
-
-    private static class SingletonHolder<K,V> {
-        public static final Cache<K,V> INSTANCE = new Cache<K,V>();
+    public static synchronized <T, V> Cache<T, V> getInstance(Class<?> clazz) {
+        if (!instances.containsKey(clazz)) {
+            new Cache<>(clazz);
+        }
+        return (Cache<T, V>) instances.get(clazz);
     }
 
     // public static Cache<K,V> getInstance(){
